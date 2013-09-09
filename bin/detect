@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+echo "ufraw" && exit 0

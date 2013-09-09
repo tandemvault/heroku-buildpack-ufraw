@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# bin/compile BUILD_DIR CACHE_DIR
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+
+S3_BASE="https://buildpack-ufraw.s3.amazonaws.com"
+
+EXIV2_TAR="exiv2-0.tgz"
+UFRAW_TAR="ufraw-0.19.tgz"
+
+mkdir -p "$BUILD_DIR/vendor"
+
+install_dependency() {
+  tarball="$1"
+  cachepath="$CACHE_DIR/$tarball"
+  vendorpath=$(echo $tarball | sed 's/\.tgz//')
+  depname=$(echo $tarball | sed 's/-.*\.tgz//')
+  if [ ! -r "$cachepath" ]; then
+    echo "-----> Installing $depname"
+    echo "       Downloading: $tarball"
+    mkdir -p $(dirname $cachepath)
+    curl --silent --show-error  -o $cachepath "$S3_BASE/$tarball"
+  else
+    echo "-----> Using cached $depname"
+  fi
+  mkdir -p "$BUILD_DIR/vendor/$vendorpath"
+  tar -xzf $cachepath -C "$BUILD_DIR/vendor/$vendorpath"
+}
+
+install_dependency "lensfun-0.2.tgz"
+install_dependency "exiv2-0.tgz"
+install_dependency "ufraw-0.19.tgz"
+
+PROFILE_PATH="$BUILD_DIR/.profile.d/ufraw.sh"
+mkdir -p $(dirname $PROFILE_PATH)
+echo 'export PATH="/app/vendor/ufraw-0.19/bin:$PATH"' >> $PROFILE_PATH
+echo 'export LD_LIBRARY_PATH=/app/vendor/lensfun-0.2/lib:/app/vendor/exiv2-0/lib' >> $PROFILE_PATH

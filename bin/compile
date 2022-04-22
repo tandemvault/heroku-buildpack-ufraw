@@ -4,7 +4,7 @@
 BUILD_DIR=$1
 CACHE_DIR=$2
 
-S3_BASE="https://buildpack-ufraw.s3.amazonaws.com"
+S3_BASE="https://mediagraph-buildpack-ufraw.s3.amazonaws.com"
 
 mkdir -p "$BUILD_DIR/vendor"
 
